@@ -3,4 +3,45 @@
     <TargetFramework>net472</TargetFramework>
     <OutputType>exe</OutputType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(OutputPath)\Linux\64\libadder.so">
+      <Link>libadder.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(OutputPath)\Windows\32\libadder.dll">
+      <Link>x86\libadder.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(OutputPath)\Windows\64\libadder.dll">
+      <Link>x64\libadder.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="BuildNative" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_CMakeFlags>-GNinja "$(MSBuildThisFileDirectory)"</_CMakeFlags>
+    </PropertyGroup>
+    <MakeDir Directories="$(OutputPath)\Linux\64\;$(OutputPath)\Windows\32\;$(OutputPath)\Windows\64" />
+    <!--Linux-->
+    <Exec
+        Command="cmake $(_CMakeFlags) -DCMAKE_SYSTEM_NAME=Linux"
+        WorkingDirectory="$(OutputPath)\Linux\64\"
+    />
+    <Exec Command="ninja -v" WorkingDirectory="$(OutputPath)\Linux\64\" />
+    <!--Win32-->
+    <Exec
+        Command="cmake $(_CMakeFlags) -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_PROCESSOR=i686"
+        WorkingDirectory="$(OutputPath)\Windows\32\"
+    />
+    <Exec Command="ninja -v" WorkingDirectory="$(OutputPath)\Windows\32\" />
+    <!--Win64-->
+    <Exec
+        Command="cmake $(_CMakeFlags) -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_PROCESSOR=x86_64"
+        WorkingDirectory="$(OutputPath)\Windows\64\"
+    />
+    <Exec Command="ninja -v" WorkingDirectory="$(OutputPath)\Windows\64\" />
+  </Target>
+
 </Project>
